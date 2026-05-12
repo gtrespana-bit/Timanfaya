@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timanfaya House | Luxury Real Estate Lanzarote</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-light: #f9f9f9;
+            --text-main: #ffffff;
+            --text-dark: #1a1a1a;
+            --accent: #d4af37; /* Oro Viejo */
+            --glass-bg: rgba(20, 20, 20, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.15);
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Manrope', sans-serif;
+            --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            overflow-x: hidden; 
+            -webkit-font-smoothing: antialiased;
+            width: 100vw; 
+        }
+
+        /* --- Custom Cursor --- */
+        .cursor-dot, .cursor-outline {
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 9999; pointer-events: none;
+        }
+        .cursor-dot { width: 8px; height: 8px; background-color: var(--accent); }
+        .cursor-outline {
+            width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+        body:hover .cursor-outline.hovered {
+            width: 80px; height: 80px; background-color: rgba(255,255,255,0.1); border-color: transparent; backdrop-filter: blur(2px);
+        }
+
+        /* --- Typography --- */
+        h1, h2, h3 { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.02em; }
+        h1 { font-size: clamp(2.5rem, 5vw, 5.5rem); line-height: 1.1; margin-bottom: 1.5rem; }
+        h2 { font-size: clamp(2rem, 3.5vw, 3.5rem); color: var(--text-dark); margin-bottom: 1.5rem; }
+        p { font-size: 1.05rem; line-height: 1.8; color: #ccc; font-weight: 300; }
+        
+        a { text-decoration: none; color: inherit; transition: all 0.4s var(--ease); }
+        
+        /* --- Navigation --- */
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; 
+            padding: 1.2rem 5%; 
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; 
+            background: rgba(10, 10, 10, 0.95); 
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .logo { font-size: 1.3rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: white; }
+        .nav-links { display: flex; gap: 2.5rem; }
+        .nav-links a { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; position: relative; color: rgba(255,255,255,0.8); }
+        .nav-links a:hover { color: white; }
+        .nav-links a::after {
+            content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 1px;
+            background: var(--accent); transition: width 0.4s var(--ease);
+        }
+        .nav-links a:hover::after { width: 100%; }
+        
+        .btn-nav-call {
+            border: 1px solid var(--accent); color: var(--accent); padding: 0.5rem 1.2rem; border-radius: 50px;
+            font-size: 0.8rem; text-transform: uppercase; transition: all 0.3s;
+        }
+        .btn-nav-call:hover { background: var(--accent); color: black; }
+
+        /* --- HERO SECTION --- */
+        #hero {
+            position: relative; height: 100vh; width: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+        
+        .video-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+            z-index: -1; filter: brightness(0.5); 
+        }
+
+        .hero-content {
+            text-align: center; z-index: 2; max-width: 900px; padding: 0 1.5rem;
+            opacity: 0; transform: translateY(40px); animation: fadeUp 1.2s var(--ease) forwards 0.5s;
+        }
+        
+        .hero-subtitle {
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 4px; color: var(--accent);
+            margin-bottom: 1.5rem; display: block; font-weight: 600;
+        }
+
+        .hero-buttons {
+            margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+        }
+        .btn-hero {
+            padding: 1rem 2rem; border-radius: 50px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-primary { background: var(--accent); color: black; border: none; }
+        .btn-primary:hover { background: white; }
+        .btn-whatsapp { background: #25D366; color: white; border: none; display: flex; align-items: center; gap: 0.5rem; }
+        .btn-whatsapp:hover { background: #1ebc57; }
+
+        /* --- BUSCADOR ESCRITORIO (Visible) --- */
+        .search-wrapper-desktop {
+            position: absolute;
+            bottom: 3rem;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center; 
+            z-index: 10;
+            padding: 0 1rem; 
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 1100px; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            padding: 1.2rem 1.5rem; 
+            border-radius: 4px;
+            
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 1rem; 
+            align-items: flex-end; 
+            justify-content: space-between;
+            
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            opacity: 0; animation: fadeUp 1.2s var(--ease) forwards 0.8s;
+        }
+
+        .search-group { flex: 1; min-width: 140px; } 
+        .search-group label {
+            display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px;
+            color: rgba(255,255,255,0.7); margin-bottom: 0.4rem; font-weight: 500;
+        }
+        .search-group select, .search-group input {
+            width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3);
+            color: white; font-family: var(--font-serif); font-size: 1rem; padding-bottom: 0.4rem;
+            outline: none; cursor: pointer; appearance: none;
+        }
+        .search-btn {
+            background: var(--accent); color: white; border: none;
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+            transition: transform 0.3s var(--ease); flex-shrink: 0;
+        }
+        .search-btn:hover { transform: scale(1.1) rotate(90deg); background: white; color: var(--accent); }
+
+        /* --- BOTÓN BUSCADOR MÓVIL (Oculto en escritorio) --- */
+        .mobile-search-trigger {
+            display: none; /* Oculto por defecto */
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: black;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 20;
+            cursor: pointer;
+            border: none;
+            animation: fadeUp 1.2s var(--ease) forwards 1s;
+            opacity: 0;
+        }
+
+        /* --- MODAL BUSCADOR MÓVIL --- */
+        .mobile-search-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 2rem;
+        }
+        .mobile-search-modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .close-modal {
+            position: absolute; top: 2rem; right: 2rem;
+            background: none; border: none; color: white; font-size: 2rem; cursor: pointer;
+        }
+        .modal-content {
+            width: 100%; max-width: 500px;
+            display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .modal-group label { color: var(--accent); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 0.5rem; display: block; }
+        .modal-group select {
+            width: 100%; padding: 1rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; font-family: var(--font-serif); font-size: 1.1rem; border-radius: 4px;
+        }
+        .modal-search-btn {
+            background: var(--accent); color: black; border: none; padding: 1rem;
+            font-size: 1.1rem; text-transform: uppercase; font-weight: 600; margin-top: 1rem; cursor: pointer;
+        }
+
+        /* --- Philosophy Section --- */
+        #philosophy {
+            padding: 8rem 5%; background: var(--bg-light); color: var(--text-dark);
+            display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; align-items: center;
+            max-width: 1400px; margin: 0 auto; 
+        }
+        .philo-img-wrapper {
+            position: relative; overflow: hidden; height: 500px; width: 100%;
+        }
+        .philo-img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 1.5s var(--ease);
+        }
+        .philo-img-wrapper:hover .philo-img { transform: scale(1.05); }
+        
+        .quote-text {
+            font-size: clamp(1.5rem, 2.5vw, 2.5rem); line-height: 1.3; font-family: var(--font-serif);
+            margin-bottom: 2rem; color: var(--text-dark);
+        }
+        .highlight { color: var(--accent); font-style: italic; }
+        .stats-row {
+            display: flex; gap: 3rem; margin-top: 3rem; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .stat h4 { font-size: 2.2rem; font-family: var(--font-serif); color: var(--accent); margin-bottom: 0.2rem; }
+        .stat span { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+
+        /* --- Featured Properties (GRID RESPONSIVO) --- */
+        #properties { padding: 8rem 5%; background: var(--bg-dark); width: 100%; }
+        .section-header { margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end; max-width: 1400px; margin-left: auto; margin-right: auto; }
+        .section-title { color: var(--text-main); font-size: 2.5rem; }
+        .view-all { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--accent); padding-bottom: 5px; color: white; }
+        .view-all:hover { color: var(--accent); border-color: white; }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .property-card {
+            height: 500px; 
+            position: relative; border-radius: 2px; overflow: hidden;
+            cursor: pointer; 
+            background: #1a1a1a;
+        }
+        .prop-img {
+            width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s var(--ease);
+        }
+        .property-card:hover .prop-img { transform: scale(1.05); }
+        
+        .prop-overlay {
+            position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent 60%);
+            display: flex; flex-direction: column; justify-content: flex-end; padding: 1.5rem;
+            opacity: 0.9; transition: opacity 0.3s;
+        }
+        .prop-tag {
+            position: absolute; top: 1.5rem; left: 1.5rem; background: white; color: black;
+            padding: 0.3rem 0.8rem; font-size: 0.65rem; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;
+        }
+        .prop-price { font-size: 1.5rem; font-family: var(--font-serif); color: var(--accent); margin-bottom: 0.3rem; }
+        .prop-name { font-size: 1.2rem; font-weight: 300; margin-bottom: 0.3rem; color: white; }
+        .prop-meta { font-size: 0.85rem; color: rgba(255,255,255,0.7); display: flex; gap: 0.8rem; }
+
+        /* --- Process Section --- */
+        #process { padding: 8rem 5%; background: var(--bg-light); color: var(--text-dark); max-width: 1400px; margin: 0 auto; }
+        .process-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+        }
+        .step-item {
+            border-bottom: 1px solid rgba(0,0,0,0.1); padding: 2rem 0; cursor: pointer;
+            transition: padding-left 0.3s var(--ease);
+        }
+        .step-item:hover { padding-left: 1rem; border-color: var(--accent); }
+        .step-num { font-family: var(--font-serif); font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; display: block; }
+        .step-title { font-size: 1.6rem; margin-bottom: 1rem; font-family: var(--font-serif); }
+        .step-desc { color: #666; font-size: 1rem; line-height: 1.6; max-height: 0; overflow: hidden; transition: max-height 0.5s var(--ease); }
+        .step-item.active .step-desc { max-height: 200px; margin-top: 1rem; }
+
+        /* --- Contact Form Section --- */
+        #contact-form-section {
+            padding: 8rem 5%; background: var(--bg-dark); color: var(--text-main);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; max-width: 1400px; margin: 0 auto;
+        }
+        .contact-info h2 { color: white; margin-bottom: 1.5rem; }
+        .contact-details div { margin-bottom: 1.5rem; }
+        .contact-details strong { display: block; color: var(--accent); margin-bottom: 0.3rem; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        
+        form {
+            background: rgba(255,255,255,0.03); padding: 2.5rem; border: 1px solid var(--border-glass); border-radius: 4px;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #aaa; }
+        .form-group input, .form-group textarea {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            padding: 1rem; color: white; font-family: var(--font-sans); outline: none; transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+        button[type="submit"] {
+            width: 100%; background: var(--accent); color: black; border: none; padding: 1rem;
+            font-size: 1rem; text-transform: uppercase; font-weight: 600; cursor: pointer; transition: background 0.3s;
+        }
+        button[type="submit"]:hover { background: white; }
+
+        /* --- Footer --- */
+        footer {
+            background: #050505; padding: 5rem 5% 2rem; border-top: 1px solid #222; width: 100%;
+        }
+        .footer-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; margin-bottom: 3rem;
+            max-width: 1400px; margin-left: auto; margin-right: auto;
+        }
+        .footer-logo { font-size: 1.8rem; font-family: var(--font-serif); margin-bottom: 1.5rem; display: block; color: white; }
+        .footer-col h5 { color: white; margin-bottom: 1.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-col a { display: block; color: #888; margin-bottom: 0.8rem; font-size: 0.95rem; }
+        .footer-col a:hover { color: var(--accent); }
+
+        /* --- Floating WhatsApp Button --- */
+        .floating-wa {
+            position: fixed; bottom: 2rem; right: 2rem; background: #25D366; color: white;
+            width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; z-index: 999; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.3s;
+        }
+        .floating-wa:hover { transform: scale(1.1); }
+
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- MEDIA QUERIES --- */
+        @media (max-width: 1024px) {
+            /* Ocultar buscador de escritorio */
+            .search-wrapper-desktop { display: none; }
+            
+            /* Mostrar botón móvil */
+            .mobile-search-trigger { display: block; }
+            
+            .nav-links { display: none; }
+            #philosophy, .process-grid, #contact-form-section { grid-template-columns: 1fr; gap: 3rem; }
+            .philo-img-wrapper { height: 350px; }
+            nav { padding: 1rem 5%; }
+            .properties-grid { grid-template-columns: 1fr; } 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- Floating WhatsApp -->
+    <a href="https://wa.me/34649747103" class="floating-wa hover-target" target="_blank" aria-label="Chat on WhatsApp">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.968.58 1.961.88 3.001.88 3.182 0 5.768-2.587 5.768-5.766.001-3.181-2.587-5.766-5.768-5.766zm0 10.23c-2.45 0-4.442-1.992-4.442-4.442 0-2.45 1.992-4.442 4.442-4.442 2.45 0 4.442 1.992 4.442 4.442 0 2.45-1.992 4.442-4.442 4.442z"/></svg>
+    </a>
+
+    <nav>
+        <div class="logo hover-target">Timanfaya House</div>
+        <div class="nav-links">
+            <a href="#philosophy" class="hover-target">Filosofía</a>
+            <a href="#properties" class="hover-target">Colección</a>
+            <a href="#process" class="hover-target">Servicios</a>
+            <a href="#contact-form-section" class="hover-target">Contacto</a>
+        </div>
+        <a href="tel:+34649747103" class="btn-nav-call hover-target">📞 Llamar Ahora</a>
+    </nav>
+
+    <section id="hero">
+        <!-- Cinematic Video Background -->
+        <video autoplay muted loop playsinline class="video-bg">
+            <source src="https://videos.pexels.com/video-files/3770034/3770034-hd_1920_1080_25fps.mp4" type="video/mp4">
+        </video>
+
+        <div class="hero-content">
+            <span class="hero-subtitle">Real Estate Lanzarote</span>
+            <h1>No somos la inmobiliaria perfecta.<br>Somos perfectos para ti.</h1>
+            
+            <div class="hero-buttons">
+                <a href="https://wa.me/34649747103" class="btn-hero btn-whatsapp hover-target" target="_blank">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.669-.699c.968.58 1.961.88 3.001.88 3.182 0 5.768-2.587 5.768-5.766.001-3.181-2.587-5.766-5.768-5.766zm0 10.23c-2.45 0-4.442-1.992-4.442-4.442 0-2.45 1.992-4.442 4.442-4.442 2.45 0 4.442 1.992 4.442 4.442 0 2.45-1.992 4.442-4.442 4.442z"/></svg>
+                    WhatsApp Directo
+                </a>
+                <a href="#properties" class="btn-hero btn-primary hover-target">Ver Propiedades</a>
+            </div>
+        </div>
+
+        <!-- BUSCADOR ESCRITORIO (Solo visible > 1024px) -->
+        <div class="search-wrapper-desktop">
+            <div class="search-container">
+                <div class="search-group">
+                    <label>Ubicación</label>
+                    <select class="hover-target">
+                        <option>Toda Lanzarote</option>
+                        <option>Playa Blanca</option>
+                        <option>Puerto del Carmen</option>
+                        <option>Costa Teguise</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label>Tipo</label>
+                    <select class="hover-target">
+                        <option>Todas</option>
+                        <option>Villa</option>
+                        <option>Apartamento</option>
+                        <option>Finca</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label>Precio Máx</label>
+                    <select class="hover-target">
+                        <option>Cualquiera</option>
+                        <option>€500k</option>
+                        <option>€1M</option>
+                        <option>> €1M</option>
+                    </select>
+                </div>
+                <div class="search-group">
+                    <label>Habitaciones</label>
+                    <select class="hover-target">
+                        <option>Cualquiera</option>
+                        <option>2+</option>
+                        <option>3+</option>
+                        <option>4+</option>
+                    </select>
+                </div>
+                <button class="search-btn hover-target">➜</button>
+            </div>
+        </div>
+
+        <!-- BOTÓN BUSCADOR MÓVIL (Solo visible < 1024px) -->
+        <button class="mobile-search-trigger hover-target" onclick="openSearchModal()">
+            🔍 Buscar Propiedad
+        </button>
+    </section>
+
+    <!-- MODAL BUSCADOR MÓVIL -->
+    <div class="mobile-search-modal" id="searchModal">
+        <button class="close-modal" onclick="closeSearchModal()">×</button>
+        <div class="modal-content">
+            <h2 style="color: white; text-align: center; margin-bottom: 2rem;">Filtrar Propiedades</h2>
+            <div class="modal-group">
+                <label>Ubicación</label>
+                <select>
+                    <option>Toda Lanzarote</option>
+                    <option>Playa Blanca</option>
+                    <option>Puerto del Carmen</option>
+                    <option>Costa Teguise</option>
+                </select>
+            </div>
+            <div class="modal-group">
+                <label>Tipo</label>
+                <select>
+                    <option>Todas</option>
+                    <option>Villa</option>
+                    <option>Apartamento</option>
+                    <option>Finca</option>
+                </select>
+            </div>
+            <div class="modal-group">
+                <label>Precio Máx</label>
+                <select>
+                    <option>Cualquiera</option>
+                    <option>€500k</option>
+                    <option>€1M</option>
+                    <option>> €1M</option>
+                </select>
+            </div>
+            <div class="modal-group">
+                <label>Habitaciones</label>
+                <select>
+                    <option>Cualquiera</option>
+                    <option>2+</option>
+                    <option>3+</option>
+                    <option>4+</option>
+                </select>
+            </div>
+            <button class="modal-search-btn" onclick="closeSearchModal()">Buscar</button>
+        </div>
+    </div>
+
+    <section id="philosophy">
+        <div class="philo-img-wrapper reveal">
+            <!-- IMAGEN CORREGIDA -->
+            <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Interior Lujo" class="philo-img">
+        </div>
+        <div class="reveal">
+            <p style="color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; font-weight: 600;">Nuestra Historia</p>
+            <h2 class="quote-text">
+                "Comenzamos sin experiencia, pero con <span class="highlight">buenas intenciones</span>. Hoy, conocemos cada rincón de la isla. No prometemos ser los más grandes, pero sí estar ahí."
+            </h2>
+            <p>Desde 2012, Timanfaya House ha redefinido el trato humano en el sector inmobiliario de Lanzarote. Transparencia radical, sin letra pequeña.</p>
+            
+            <div class="stats-row">
+                <div class="stat">
+                    <h4>12+</h4>
+                    <span>Años de Experiencia</span>
+                </div>
+                <div class="stat">
+                    <h4>500+</h4>
+                    <span>Hogares Entregados</span>
+                </div>
+                <div class="stat">
+                    <h4>3</h4>
+                    <span>Idiomas (ES/EN/IT)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="properties">
+        <div class="section-header reveal">
+            <h2 class="section-title">Selección Exclusiva</h2>
+            <a href="#" class="view-all hover-target">Ver Colección Completa</a>
+        </div>
+        
+        <!-- GRID RESPONSIVO -->
+        <div class="properties-grid">
+            <!-- Property 1 -->
+            <div class="property-card hover-target reveal">
+                <span class="prop-tag">Venta</span>
+                <img src="https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Villa Lujo" class="prop-img">
+                <div class="prop-overlay">
+                    <span class="prop-price">€ 1.250.000</span>
+                    <span class="prop-name">Villa Volcánica Moderna</span>
+                    <div class="prop-meta">Yaiza · 4 Hab · 280 m²</div>
+                </div>
+            </div>
+            <!-- Property 2 -->
+            <div class="property-card hover-target reveal" style="transition-delay: 0.1s;">
+                <span class="prop-tag">Venta</span>
+                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Finca" class="prop-img">
+                <div class="prop-overlay">
+                    <span class="prop-price">€ 890.000</span>
+                    <span class="prop-name">Finca Rústica La Geria</span>
+                    <div class="prop-meta">Tinajo · 5 Hab · 5000 m²</div>
+                </div>
+            </div>
+            <!-- Property 3 -->
+            <div class="property-card hover-target reveal" style="transition-delay: 0.2s;">
+                <span class="prop-tag">Alquiler</span>
+                <img src="https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Ático" class="prop-img">
+                <div class="prop-overlay">
+                    <span class="prop-price">€ 2.500 / mes</span>
+                    <span class="prop-name">Ático Frente al Mar</span>
+                    <div class="prop-meta">Pto. Carmen · 2 Hab · 120 m²</div>
+                </div>
+            </div>
+             <!-- Property 4 -->
+             <div class="property-card hover-target reveal" style="transition-delay: 0.3s;">
+                <span class="prop-tag">Venta</span>
+                <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Casa Minimalista" class="prop-img">
+                <div class="prop-overlay">
+                    <span class="prop-price">€ 695.000</span>
+                    <span class="prop-name">Casa Minimalista</span>
+                    <div class="prop-meta">Costa Teguise · 3 Hab · 210 m²</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="process">
+        <div class="process-grid">
+            <div class="reveal">
+                <p style="color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem; font-weight: 600;">Guía de Compra</p>
+                <h2 style="margin-bottom: 2rem;">Transparencia<br>Total.</h2>
+                <p>Sin sorpresas. Te acompañamos desde la primera visita hasta la entrega de llaves, gestionando NIE, hipotecas y notaría.</p>
+            </div>
+            
+            <div class="steps-container reveal">
+                <div class="step-item hover-target" onclick="toggleStep(this)">
+                    <span class="step-num">01</span>
+                    <h3 class="step-title">Contrato de Reserva</h3>
+                    <p class="step-desc">Bloqueo de la propiedad con el 10% en cuenta regulada. Seguridad jurídica total para ambas partes.</p>
+                </div>
+                <div class="step-item hover-target" onclick="toggleStep(this)">
+                    <span class="step-num">02</span>
+                    <h3 class="step-title">Gestión Hipotecaria</h3>
+                    <p class="step-desc">Negociamos con bancos locales e internacionales para conseguirte las mejores condiciones del mercado.</p>
+                </div>
+                <div class="step-item hover-target" onclick="toggleStep(this)">
+                    <span class="step-num">03</span>
+                    <h3 class="step-title">Firma en Notaría</h3>
+                    <p class="step-desc">Verificación legal final, pago de impuestos y registro de propiedad. Tú solo firmas, nosotros hacemos el resto.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FORMULARIO DE CONTACTO INTEGRADO -->
+    <section id="contact-form-section">
+        <div class="contact-info reveal">
+            <h2>Hablemos de tu<br>Próximo Hogar</h2>
+            <p style="margin-bottom: 2rem;">¿Buscas vender tu propiedad o encontrar la casa de tus sueños? Nuestro equipo está listo para asesorarte sin compromiso.</p>
+            
+            <div class="contact-details">
+                <div>
+                    <strong>Oficina Central</strong>
+                    <p>C. México, 1, 35500 Arrecife, Las Palmas</p>
+                </div>
+                <div>
+                    <strong>Teléfono</strong>
+                    <p><a href="tel:+34649747103">+34 649 74 71 03</a></p>
+                </div>
+                <div>
+                    <strong>Email</strong>
+                    <p><a href="mailto:info@timanfayahouse.com">info@timanfayahouse.com</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <form class="reveal" action="#" method="POST">
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" placeholder="Tu nombre" required>
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" placeholder="tu@email.com" required>
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="tel" placeholder="+34 ..." required>
+            </div>
+            <div class="form-group">
+                <label>Mensaje</label>
+                <textarea rows="4" placeholder="¿En qué podemos ayudarte?" required></textarea>
+            </div>
+            <button type="submit" class="hover-target">Enviar Consulta</button>
+        </form>
+    </section>
+
+    <footer id="contact">
+        <div class="footer-grid">
+            <div>
+                <a href="#" class="footer-logo">Timanfaya House.</a>
+                <p style="color: #666; max-width: 300px;">Trato humano. Soluciones reales. Resultados seguros en Lanzarote.</p>
+            </div>
+            <div class="footer-col">
+                <h5>Navegación</h5>
+                <a href="#">Inicio</a>
+                <a href="#">Comprar</a>
+                <a href="#">Vender</a>
+                <a href="#">Nosotros</a>
+            </div>
+            <div class="footer-col">
+                <h5>Legal</h5>
+                <a href="#">Aviso Legal</a>
+                <a href="#">Privacidad</a>
+                <a href="#">Cookies</a>
+            </div>
+            <div class="footer-col">
+                <h5>Contacto</h5>
+                <a href="#">Av. de las Playas, LZ</a>
+                <a href="tel:+34649747103">+34 649 74 71 03</a>
+                <a href="mailto:info@timanfaya.com">info@timanfaya.com</a>
+            </div>
+        </div>
+        <p style="text-align: center; color: #333; font-size: 0.8rem; margin-top: 2rem;">© 2024 Timanfaya House. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // --- Custom Cursor Logic ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        const hoverTargets = document.querySelectorAll('.hover-target');
+
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => {
+                cursorOutline.classList.add('hovered');
+            });
+            target.addEventListener('mouseleave', () => {
+                cursorOutline.classList.remove('hovered');
+            });
+        });
+
+        // --- Accordion Logic ---
+        function toggleStep(element) {
+            element.classList.toggle('active');
+        }
+
+        // --- Mobile Search Modal Logic ---
+        function openSearchModal() {
+            document.getElementById('searchModal').classList.add('active');
+        }
+        function closeSearchModal() {
+            document.getElementById('searchModal').classList.remove('active');
+        }
+
+        // --- Scroll Reveal Animation ---
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            const elementVisible = 100;
+            reveals.forEach((reveal) => {
+                const elementTop = reveal.getBoundingClientRect().top;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.style.opacity = "1";
+                    reveal.style.transform = "translateY(0)";
+                }
+            });
+        };
+        
+        // Init styles for JS animation
+        reveals.forEach(el => {
+            el.style.opacity = "0";
+            el.style.transform = "translateY(50px)";
+            el.style.transition = "all 1s cubic-bezier(0.16, 1, 0.3, 1)";
+        });
+
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // Trigger once on load
+    </script>
+</body>
+</html>
